@@ -1,2 +1,2 @@
-{"username": "testuser", "salt": "142f94f98ec88125dabe30234f22d6d1bde243b7d8337c0759a9ec021d486a2b", "hash": "c30d61f6313c3b168e6166442b8851cf39134d4ed15dddbe52104ac8ba0e3bb2", "role": "Client"}
-{"username": "testuser2", "salt": "31c2736389b497a9c5c70f844e93c9b0dbb1ced1df00399228944ae281a3b7a2", "hash": "3db1b5c098a41e2e380a92420fac85d0e335978d48299ffac90b703827f80abb", "role": "Client"}
+{"username": "testuser", "salt": "31a67db7c324491ceb89ed475cfcea407f0b784ffe8e6a096b486609673ba3ed", "hash": "6ab9c99c4f7988e940b6de63fec4730a8ac86051f6474af0dee54e49e95e5ca2", "role": "Client"}
+{"username": "testuser2", "salt": "42ca27421a183fb533277797c1a621e705d37d5c5ba2c06e30aa4cd34d9177da", "hash": "bfb45b131e57844070d66a59ff469f22acd0cb3e1c56d793aa3095645bcb5dba", "role": "Client"}
