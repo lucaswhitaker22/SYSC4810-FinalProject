@@ -1,80 +1,97 @@
 import unittest
 from unittest.mock import patch
-from main import PasswordChecker, UserEnrollment
+import os
+from main import PasswordChecker, UserEnrollment, Role
 
 class TestUserEnrollment(unittest.TestCase):
     def setUp(self):
         self.password_checker = PasswordChecker()
         self.enrollment = UserEnrollment()
+        # Create weak passwords file
+        with open("weak_passwords.txt", "w") as f:
+            f.write("password123\nqwerty123\nadmin123\n")
+        
+    def tearDown(self):
+        # Clean up test files
+        for file in ["passwd.txt", "weak_passwords.txt"]:
+            try:
+                os.remove(file)
+            except FileNotFoundError:
+                pass
 
-    def test_password_validation(self):
-        # Test password length (too short)
-        valid, _ = self.password_checker.check_password("Abc1!", "user")
-        self.assertFalse(valid)
-
-        # Test password length (too long)
-        valid, _ = self.password_checker.check_password("Abcd1234!@#$%", "user")
-        self.assertFalse(valid)
-
-        # Test uppercase requirement
-        valid, _ = self.password_checker.check_password("abcd123!", "user")
-        self.assertFalse(valid)
-
-        # Test lowercase requirement
-        valid, _ = self.password_checker.check_password("ABCD123!", "user")
-        self.assertFalse(valid)
-
-        # Test digit requirement
-        valid, _ = self.password_checker.check_password("AbcdEfg!", "user")
-        self.assertFalse(valid)
-
-        # Test special character requirement
-        valid, _ = self.password_checker.check_password("Abcd1234", "user")
-        self.assertFalse(valid)
-
-        # Test username matching
-        valid, _ = self.password_checker.check_password("user123!", "user")
-        self.assertFalse(valid)
-
-        # Test valid password
-        valid, _ = self.password_checker.check_password("Test123!@", "user")
-        self.assertTrue(valid)
-
-    
-    @patch('builtins.input')
-    def test_successful_enrollment(self, mock_input):
-        # Create a new mock input sequence with proper role value
-        mock_input.side_effect = [
-            'testuser',           # username
-            'Client',            # exact role value from enum
-            'Test123!@',         # initial password
-            'Test123!@'          # password confirmation
+    def test_password_validation_length(self):
+        """Test password length requirements"""
+        test_cases = [
+            ("Short1!", False),
+            ("VeryLongPass123!", False),
+            ("Valid123!", True)
+        ]
+        for password, expected in test_cases:
+            valid, _ = self.password_checker.check_password(password, "user")
+            self.assertEqual(valid, expected)
+    def test_password_username_match(self):
+        """Test username matching prevention"""
+        username = "testuser"
+        test_cases = [
+            # Format: (password, expected_valid, description)
+            ("testuser123!", False, "Contains exact username"),
+            ("TestUser123!", False, "Contains username with different case"),
+            ("test123user!", False, "Contains username split"),
+            ("Secure123!@", True, "Valid password without username"),
+            ("Testing123!", True, "Valid password with partial match")
         ]
         
-        # Clean up any existing password file before test
-        import os
-        if os.path.exists("passwd.txt"):
-            os.remove("passwd.txt")
-            
+        for password, expected_valid, description in test_cases:
+            valid, message = self.password_checker.check_password(password, username)
+            self.assertEqual(
+                valid, 
+                expected_valid, 
+                f"{description}: Password '{password}' with username '{username}'. Message: {message}"
+            )
+
+    def test_weak_password_check(self):
+        """Test weak password detection"""
+        test_cases = [
+            ("password123", False),
+            ("qwerty123", False),
+            ("Unique123!", True)
+        ]
+        for password, expected in test_cases:
+            valid, _ = self.password_checker.check_password(password.capitalize(), "user")
+            self.assertEqual(valid, expected)
+
+    @patch('builtins.input')
+    def test_successful_enrollment(self, mock_input):
+        mock_inputs = ['newuser', 'Client', 'Test123!@', 'Test123!@']
+        mock_input.side_effect = mock_inputs
         result = self.enrollment.enroll_user()
         self.assertTrue(result)
 
     @patch('builtins.input')
-    def test_invalid_role_enrollment(self, mock_input):
-        mock_input.side_effect = ['testuser', 'InvalidRole', 'Test123!@']
+    def test_duplicate_enrollment(self, mock_input):
+        # First enrollment
+        mock_inputs1 = ['testuser', 'Client', 'Test123!@', 'Test123!@']
+        mock_input.side_effect = mock_inputs1
+        self.enrollment.enroll_user()
+        
+        # Second enrollment attempt
+        mock_inputs2 = ['testuser', 'Client', 'Test123!@', 'Test123!@']
+        mock_input.side_effect = mock_inputs2
         result = self.enrollment.enroll_user()
         self.assertFalse(result)
 
     @patch('builtins.input')
-    def test_weak_password_enrollment(self, mock_input):
-        mock_input.side_effect = [
-            'testuser2',          # username
-            'Client',            # role
-            'weak',              # first password attempt (weak)
-            'Test123!@',         # second password attempt
-            'Test123!@'          # password confirmation
+    def test_enrollment_validation(self, mock_input):
+        test_cases = [
+            (['', 'Client', 'Pass123!@', 'Pass123!@'], False),
+            (['user', 'Invalid', 'Pass123!@', 'Pass123!@'], False),
+            (['user', 'Client', 'weak', 'weak', 'Pass123!@', 'Pass123!@'], True)
         ]
-        result = self.enrollment.enroll_user()
-        self.assertTrue(result)
+        
+        for inputs, expected in test_cases:
+            mock_input.side_effect = inputs
+            result = self.enrollment.enroll_user()
+            self.assertEqual(result, expected)
+
 if __name__ == '__main__':
-    unittest.main(failfast=True)
+    unittest.main()

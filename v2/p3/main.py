@@ -24,25 +24,28 @@ class PasswordChecker:
     def check_password(self, password: str, username: str) -> Tuple[bool, Optional[str]]:
         if len(password) < 8 or len(password) > 12:
             return False, "Password must be between 8 and 12 characters"
-            
+                
         if not re.search(r'[A-Z]', password):
             return False, "Password must contain at least one uppercase letter"
-            
+                
         if not re.search(r'[a-z]', password):
             return False, "Password must contain at least one lowercase letter"
-            
+                
         if not re.search(r'\d', password):
             return False, "Password must contain at least one digit"
-            
+                
         if not any(c in self.special_chars for c in password):
             return False, "Password must contain at least one special character (!@#$%*&)"
-            
-        if password.lower() == username.lower():
-            return False, "Password cannot match username"
-            
+                
+        # Check username in password (case-insensitive)
+        username_lower = username.lower()
+        password_lower = password.lower()
+        if username_lower in password_lower:
+            return False, "Password cannot contain username"
+                
         if password.lower() in self.weak_passwords:
             return False, "Password is too common"
-            
+                
         return True, None
 
 class UserEnrollment:

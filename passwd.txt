@@ -1,2 +1,0 @@
-{"username": "testuser", "salt": "31a67db7c324491ceb89ed475cfcea407f0b784ffe8e6a096b486609673ba3ed", "hash": "6ab9c99c4f7988e940b6de63fec4730a8ac86051f6474af0dee54e49e95e5ca2", "role": "Client"}
-{"username": "testuser2", "salt": "42ca27421a183fb533277797c1a621e705d37d5c5ba2c06e30aa4cd34d9177da", "hash": "bfb45b131e57844070d66a59ff469f22acd0cb3e1c56d793aa3095645bcb5dba", "role": "Client"}
