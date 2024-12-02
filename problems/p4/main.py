@@ -1,8 +1,8 @@
 from typing import Optional, Tuple
 
 import sys
-# caution: path[0] is reserved for script path (or '' in REPL)
-sys.path.insert(1, 'C:/Users/lucas/git/SYSC4810/SYSC4810-FinalProject/v2')
+import os
+sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from p2.main import PasswordManager
 from p1.main import AccessControl,Role, Operation

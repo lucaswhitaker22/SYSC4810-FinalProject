@@ -5,7 +5,7 @@ from typing import Optional, Dict, Tuple
 from enum import Enum
 import sys
 
-sys.path.insert(1, "C:/Users/lucas/git/SYSC4810/SYSC4810-FinalProject/v2")
+sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from p1.main import AccessControl, Operation, Role
 

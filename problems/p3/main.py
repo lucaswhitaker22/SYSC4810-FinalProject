@@ -1,10 +1,10 @@
 import re
 from typing import Tuple, Optional
 from enum import Enum
-
+import os
 import sys
-# caution: path[0] is reserved for script path (or '' in REPL)
-sys.path.insert(1, 'C:/Users/lucas/git/SYSC4810/SYSC4810-FinalProject/v2')
+
+sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from p1.main import Role
 from p2.main import PasswordManager
 
@@ -56,13 +56,11 @@ class UserEnrollment:
     def enroll_user(self) -> bool:
         print("\n=== justInvest User Enrollment ===")
         
-        # Get username
         username = input("Enter username: ").strip()
         if not username:
             print("Username cannot be empty")
             return False
-
-        # Get role
+        
         print("\nAvailable roles:")
         for role in Role:
             print(f"- {role.value}")
@@ -72,26 +70,22 @@ class UserEnrollment:
         except ValueError:
             print("Invalid role selected")
             return False
-
-        # Get and validate password
+        
         while True:
             password = input("Enter password: ")
             valid, message = self.password_checker.check_password(password, username)
-            
-            if valid:
-                # Confirm password
-                confirm = input("Confirm password: ")
-                if password != confirm:
-                    print("Passwords do not match")
-                    continue
-                break
-            else:
+            if not valid:
                 print(f"Invalid password: {message}")
-
-        # Add user to password file
-        if self.password_manager.add_user(username, password, role):
-            print("User successfully enrolled!")
-            return True
-        else:
+                continue
+                
+            confirm = input("Confirm password: ")
+            if password != confirm:
+                print("Passwords do not match")
+                continue
+                
+            if self.password_manager.add_user(username, password, role):
+                print("User successfully enrolled!")
+                return True
+                
             print("Failed to enroll user. Username may already exist.")
             return False
